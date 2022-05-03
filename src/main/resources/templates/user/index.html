@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{page_layout/layout}">
+
+<head>
+	<title>Manage Users</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+	<section layout:fragment="content">
+	 <div class="col-lg-16" th:switch="${searchUser}">
+          <form th:case="'true'" th:action="@{/users/search}" method="POST">
+            <div class="col-lg-9">
+              <div class="form-group ">
+                  <input type="search" class="form-control" id="searchText" name="searchText" placeholder="search By Username, Name or Email"/>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <button type="submit" class="btn">
+                Search
+              </button>
+            </div>
+          </form>
+          <div th:case="'false'">
+            <a  th:href="@{/users" class="btn fsp-button btn-sm mb-3"> Get All Users</a>
+            <h2>Search Results for "[[${keyword}]]"</h2>
+          </div>
+          
+        </div>
+		<h1 class="title">Users</h1>
+		<table class="fsp-table fsp-table-striped">
+
+			<thead>
+				<tr>
+					<th scope="col">User ID</th>
+					<th scope="col">CSUN ID</th>
+					<th scope="col">Full name</th>
+					<th scope="col">Email</th>
+					<th scope="col">Department(s)</th>
+					<th scope="col">Action</th>
+
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="user : ${users}">
+					<td th:text="${user.getId()}" />
+					<td th:text="${user.getCsunID()}" />
+					<td th:text="${user.getName()}" />
+					<td th:text="${user.getEmail()}" />
+					<td>
+						<select>
+							<option th:each="userDepartment : ${user.getDepartments()}">
+								<span th:text="${userDepartment.name}">[name]</span>
+							</option>
+						</select>
+					</td>
+					<td>
+						<details>
+							<summary>Actions</summary>
+							<br>
+							<th:block>
+								<br>
+								<a th:href="@{/users/__${user.getId()}__/user_availability}">Availability</a>
+								<br>
+								<br>
+								<a th:href="@{/users/__${user.getId()}__/departments}">Departments</a>
+								<br>
+								<br>
+								<a th:href="@{/users/__${user.getId()}__/entitlements}">Entitlements</a>
+								<br>
+								<br>
+								<a th:if="${usersPermission.get(user.getId())}"
+									th:href="@{/users/__${user.getId()}__/permissions}">Permissions</a>
+							</th:block>
+						</details>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</section>
+	<script>
+		$(document).ready(function () {
+			$('.dropdown-toggle').dropdown();
+		});
+	</script>
+</body>
+
+</html>

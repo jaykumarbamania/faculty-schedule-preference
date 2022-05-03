@@ -1,0 +1,227 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{page_layout/layout}">
+
+<head>
+	<title>Review</title>
+	<meta charset='utf-8' content="Cory Sanoy" name="Author" />
+	<link th:href="@{/css/request/create.css}" rel="stylesheet" />
+
+</head>
+
+<body>
+	<section layout:fragment="content">
+
+		<input th:value="*{request.times}" type="hidden" id="times">
+		<input name="approvedTime" th:value="*{request.approvedTime}" type="hidden" id="approvedTime">
+		<input name="status" th:value="*{request.status}" type="hidden" id="status">
+
+		<div class="wrap">
+			<div class="info">
+
+				<h1>Course Info</h1>
+				<div class="fsp-card">
+					<div class="fsp-card-body">
+						<h5 class="card-title" th:text="|Name: ${course.getName()}|"></h5>
+						<h6 id="departmentPrefix" class="card-subtitle mb-2 text-muted"
+							th:text="|Department Prefix: ${course.getDepartment().getPrefix()}|">
+						</h6>
+						<h6 id="courseNumber" class="card-subtitle mb-2 text-muted"
+							th:text="|Number: ${course.getNumber()}|">
+						</h6>
+						<p class="card-text"></p>
+					</div>
+				</div>
+				<br>
+				<h1>User Info</h1>
+				<div class="fsp-card">
+					<div class="fsp-card-body">
+						<h5 class="card-title" th:text="|Full Name: ${user.getName()}|"></h5>
+						<h6 class="card-subtitle mb-2 text-muted" th:text="|CSUN ID: ${user.getCsunID()}|"></h6>
+						<h5 class="card-title" th:text="|Preference to teach course: ${request.getPreferenceAsWord()}|">
+						</h5>
+						<a th:href="${resume}" class="card-link" target="_blank">resume</a>
+					</div>
+				</div>
+				<br>
+				<h1>Logs</h1>
+				<div class="Scrolller">
+					<div class="card" style="width: 635px;" th:each="request_feedback: ${request_feedbacks}">
+						<div class="card-body">
+							<h5 class="card-title" th:text="${request_feedback.getUser().getName()}"></h5>
+							<h6 class="card-subtitle mb-2 text-muted"
+								th:text="|Sent to : ${request_feedback.getHumanReceiver()}|">
+							</h6>
+							<p class="card-text" th:text="${request_feedback.getComment()}"></p>
+						</div>
+					</div>
+				</div>
+
+				<br>
+				<h1>Add comment</h1>
+				<div class="fsp-card">
+					<form th:action="@{/requests/__${request.getId()}__}" th:object="${request_feedback}" method="post">
+						<div class="form-group">
+							<label for="comment">Feedback</label>
+							<textarea class="form-control" id="comment" name="comment" th:field="*{comment}" />
+							</div>
+				<div class="form-group">
+					<label for="receiver">Send to</label>
+					<select th:field="*{receiver}" name="receiver" class="form-control" id="receiver">
+						<option th:each="i : ${receiver_types}" th:value="${i.key}" th:text="${i.value}">
+						</option>
+					</select>
+				</div>
+				<br>
+					<input class="btn btn-primary" type="submit" name="submit"/>
+				</form>
+			</div>
+		</div>
+		<div>
+			<div id='calendar'></div>
+			<br>
+			<form th:if="${request.getStatus()!=4 && request.getStatus()!=3}" th:action="@{/requests/__${request.getId()}__/denied}" method="post">
+				<button class="btn btn-danger">Denied</button>
+			</form>
+			<br>
+			<form th:if="${request.getStatus()!=4 && request.getStatus()!=3}" th:action="@{/requests/__${request.getId()}__/approved-time}" method="post">
+				<input name= "potentialApprovedTime" type="hidden" id="potentialApprovedTime">
+				<input name= "userAvailability" type="hidden" id="userAvailability">
+
+				<button class="btn btn-primary">Approve</button>
+			</form>
+		</div>
+
+	</div>
+	
+	<script>
+		var e;
+		$(document).ready(function () {
+			const DENIED = 3
+			const APPROVED = 4;
+			let approvedTime = [];
+			let userAvailability = [];
+			let calendarEL = $('#calendar');
+			let courseNumber = $('#departmentPrefix').text().split(":")[1] + " " + $('#courseNumber').text().split(" ")[1];
+			let potentialApprovedTime = $('#potentialApprovedTime');
+			let userAvailabilityTag = $('#userAvailability');
+			let currentDate = "2012-05-25";
+			calendarEL.fullCalendar({
+				eventColor: '#2E4755',
+				hiddenDays: [0],
+				defaultView: 'agendaWeek',
+				slotDuration: '00:15',
+				allDaySlot: false,
+				editable: true,
+				eventResourceEditable: false,
+				selectHelper: true,
+                selectable: true,
+                unselectAuto: true,
+                eventOverlap: true,
+				slotLabelInterval: "00:15",
+				longPressDelay: 0,
+				header: {
+                    left: '',
+                    center: '',
+                    right: ''
+                },
+				views: {
+					agendaWeek: {
+						columnFormat: "dddd"
+					}
+				},
+				nowIndicator: "true",
+                minTime: '08:30',
+                maxTime: '21:45',
+				events: function (_, _, _, callback) {
+					if($("#status").val() == APPROVED || $("#status").val() == DENIED)
+						callback(JSON.parse($("#approvedTime").val()));
+					else
+						callback(JSON.parse($("#times").val()));
+				}, 
+				select: function (start, end) {
+					start_ = start.toISOString();
+                    end_ = end.toISOString();
+					addEvent(start_,end_);
+				},
+				eventRender: function (event, element) {
+					if(event.editable == undefined){
+						element
+							.find(".fc-content")
+							.prepend(`<i class="closeBtn far fa-times-circle"></i>`);
+						element.find(".closeBtn").on("click", function () {
+							calendarEL.fullCalendar("removeEvents", event._id);
+							updateHiddenInput()
+						});
+					}
+                }
+					 
+			});
+			function convertToJson(value, _, _) {
+				if (value.title == courseNumber){
+					approvedTime.push({
+						title: courseNumber,
+						color: value.color,
+						start: value.start.toISOString(),
+						end: value.end.toISOString(),
+						day: value.start.format("dddd"),
+						startTime: value.start.format("hh:mm"),
+						endTime: value.end.format("hh:mm"),
+						editable: false
+
+					})
+					userAvailability.push({
+						title: courseNumber,
+						color: value.color,
+						start: value.start.toISOString(),
+						end: value.end.toISOString(),
+						day: value.start.format("dddd"),
+						editable: false
+					})
+				}else{
+					userAvailability.push({
+						title: value.title,
+						color: value.color,
+						start: value.start.toISOString(),
+						end: value.end.toISOString(),
+						day: value.start.format("dddd"),
+						editable: false
+					})
+				}
+				
+				
+
+            };
+			function updateHiddenInput() {
+                approvedTime = [];
+				userAvailability = [];
+                calendarEL.fullCalendar("clientEvents").forEach(convertToJson);
+				potentialApprovedTime.val(JSON.stringify(approvedTime));
+				userAvailabilityTag.val(JSON.stringify(userAvailability));
+            }
+
+			function addEvent(start, end) {
+                calendarEL.fullCalendar('renderEvent', {
+                    title: courseNumber,
+                    start: start,
+                    end: end,
+                }, true);
+				updateHiddenInput()
+            };
+
+			calendarEL.fullCalendar('gotoDate', currentDate);
+			$('#my-draggable').draggable({
+				zIndex: 999,
+				revert: true, // will cause the event to go back to its
+			});
+			
+		});
+	</script>
+</section>
+</body>
+
+
+
+
+</html>

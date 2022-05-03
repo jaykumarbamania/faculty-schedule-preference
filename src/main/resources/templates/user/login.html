@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sf="http://www.w3.org/1999/xhtml" lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link th:href="@{/css/user/loginstyle.css}" rel="stylesheet" />
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="header">
+        <a target="_blank" href="https://www.csun.edu/">
+            <img th:src="@{/images/user/Seal-Logos/Seal-CSUN Horizontal 186.jpg}" alt="CSUN Logo">
+        </a>
+        <div class="red">
+        </div>
+    </div>
+    <div class="container">
+        <div class="background">
+            <div class="inputBox">
+                <a href="https://www.csun.edu/">
+                    <img class="thread" th:src="@{/images/user/Seal-Logos/Seal-CSUN vertical Red updated.png}"
+                        alt="CSUN Seal Logo">
+                </a>
+                <h1>
+                    Login
+                </h1>
+                <form id="loginForm" name="f" th:action="@{/users/login_validation}" method="post">
+                    <div id="errs" class="errorcontainer"></div>
+                    <div th:if="${param.error}" class="alert alert-error">
+                        Invalid username and password.
+                    </div>
+                    <div th:if="${error_enabled}" class="alert alert-error">
+                        Account needs to be activated through email verification link.
+                    </div>
+                    <div th:if="${param.logout}" class="alert alert-success">
+                        You have been logged out.
+                    </div>
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" autocomplete="email"
+                        placeholder="Enter Your Username" />
+
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password"
+                        placeholder="Enter Your Password" />
+                    <input type="submit" name="submit" placeholder="Login">
+                    <br>
+                    <a th:href="@{/users/forgotPassword}"> Forgot Password?</a>
+                    <br>
+                    <a th:href="@{/users/signup}">New User? Create Account Here</a>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

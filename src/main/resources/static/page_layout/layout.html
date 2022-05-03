@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head>
+    <meta charset="UTF-8" />
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.0.1/fullcalendar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+        integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous">
+    </script>
+
+    <link th:href="@{/css/stylesheet.css}" rel="stylesheet" />
+
+    <title>Layout page</title>
+</head>
+
+<body>
+
+
+    <nav class="fsp-navbar">
+        <div class="fsp-navbar-csunlogo">
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/8c/CSUNS.svg/50px-CSUNS.svg.png" alt="">
+            <h4>CSUN</h4>
+        </div>
+        <ul class="fsp-navbar-links">
+            <li sec:authorize="hasAnyRole('ADMIN', 'CONTROLLER','SUPERUSER')"><a class="fsp-navbar-link"
+                    href="/users">Users</a></li>
+            <li sec:authorize="hasAnyRole('ADMIN', 'CONTROLLER','SUPERUSER')"><a class="fsp-navbar-link"
+                    href="/terms">Terms</a>
+            </li> <!-- Not live yet-->
+            <li sec:authorize="hasAnyRole('ADMIN', 'CONTROLLER','SUPERUSER')"><a class="fsp-navbar-link"
+                    href="/courses">Courses</a></li> <!-- Not live yet-->
+            <li sec:authorize="hasAnyRole('CONTROLLER','TENURETRACK','SUPERUSER')"><a class="fsp-navbar-link"
+                    href="/requests">Requests</a></li>
+            <li sec:authorize="hasAnyRole('TENURETRACK','SUPERUSER')"><a class="fsp-navbar-link"
+                    href="/user_availabilities">Availabilities</a></li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    My
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" th:href="@{/my_availabilities}">Availability</a>
+                    <a class="dropdown-item" th:href="@{/my_requests}">Requests</a>
+                </ul>
+            </li>
+            <li><a class="fsp-navbar-link" href="/users/logout">Logout</a></li>
+            <!-- Include more role authorizations later on, testing purposes for now-->
+        </ul>
+    </nav>
+
+    <section layout:fragment="content">
+        <div ></div>
+    </section>
+
+</body>
+
+</html>
